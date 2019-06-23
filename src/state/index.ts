@@ -1,16 +1,16 @@
 import * as React from "react"
 
-import { Environment } from "./environment"
-import { Snake } from "./snake"
+import Field from "./field"
+import Snake from "./snake"
 
 export interface IGameState {
-  environment: Environment
+  field: Field
   snake: Snake
 }
 
 export class GameState implements IGameState {
-  environment = new Environment()
-  snake = new Snake(this)
+  field = new Field(200, 200)
+  snake = new Snake(this.field)
 }
 
 const State = new GameState()
