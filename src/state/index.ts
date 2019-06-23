@@ -1,16 +1,22 @@
 import * as React from "react"
+import { observable, action } from "mobx"
 
 import Field from "./field"
 import Snake from "./snake"
 
-export interface IGameState {
+export class GameState {
+  @observable state: "menu" | "ongoing" | "paused" | "over" = "menu"
   field: Field
   snake: Snake
-}
 
-export class GameState implements IGameState {
-  field = new Field(200, 200)
-  snake = new Snake(this.field)
+  constructor() {
+    this.field = new Field(200, 200, this)
+    this.snake = new Snake(this)
+  }
+
+  @action gameOver() {
+    this.state = "over"
+  }
 }
 
 const State = new GameState()
