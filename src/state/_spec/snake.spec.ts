@@ -13,8 +13,8 @@ describe("Snake", () => {
   describe("when created", () => {
     it("has 2 particles at the center of the field", () => {
       expect(Snake.particles).toEqual([
-        { ...center, color: "red" }, // the head at the middle of the field
-        { x: center.x - 1, y: center.y, color: "black" } // the tail just to the left of the head
+        { ...center }, // the head at the middle of the field
+        { x: center.x - 1, y: center.y } // the tail just to the left of the head
       ])
     })
 
@@ -34,7 +34,6 @@ describe("Snake", () => {
 
     it("moves the head in the right direction", () => {
       expect(Snake.particles[0]).toEqual({
-        color: "red",
         x: center.x + 1,
         y: center.y
       })
@@ -42,14 +41,21 @@ describe("Snake", () => {
 
     it("moves the tail in the right direction", () => {
       expect(Snake.particles[1]).toEqual({
-        color: "black",
         x: center.x,
         y: center.y
       })
     })
 
+    it("breaks the 4th wall", () => {
+      Snake.particles = [{ x: 1, y: 1 }, { x: 2, y: 1 }]
+      Snake.direction = "l"
+
+      Snake.move() // go through left wall
+
+      expect(Snake.particles).toEqual([{ x: Field.width, y: 1 }, { x: 1, y: 1 }])
+    })
+
     it("dies if it hits itself", () => {
-      // @ts-ignore no colors needed for this test
       Snake.particles = [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 2, y: 1 }, { x: 1, y: 1 }]
 
       Snake.direction = "d"
@@ -59,14 +65,38 @@ describe("Snake", () => {
     })
   })
 
+  describe("when told to switch directions", () => {
+    it("immediately moves in that direction", () => {
+      Snake.particles = [{ x: 1, y: 1 }, { x: 2, y: 1 }]
+      Snake.direction = "l"
+
+      Snake.switchDirection("u")
+      expect(Snake.particles).toEqual([{ x: 1, y: 2 }, { x: 1, y: 1 }])
+    })
+
+    it("does not switch direction if told to go backwards", () => {
+      Snake.particles = [{ x: 1, y: 1 }, { x: 2, y: 1 }]
+      Snake.direction = "u"
+
+      Snake.switchDirection("d")
+      expect(Snake.direction).toBe("u")
+    })
+  })
+
   describe("when it eats an apple", () => {
-    it("grows", () => {
-      Field.apples = [{ x: 1, y: 1, color: "green" }]
-      Snake.particles = [{ x: 2, y: 1, color: "red" }]
+    beforeEach(() => {
+      Field.apple = { x: 1, y: 1 }
+      Snake.particles = [{ x: 2, y: 1 }]
       Snake.direction = "l"
       Snake.move()
+    })
 
+    it("grows", () => {
       expect(Snake.particles.length).toBe(2)
+    })
+
+    it("eats the apple", () => {
+      expect(Field.apple).toBe(null)
     })
   })
 })

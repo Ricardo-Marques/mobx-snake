@@ -1,14 +1,18 @@
-import { observable, action } from "mobx"
+import { observable, action, reaction } from "mobx"
 
 import { GameState } from "state"
 import { Particle } from "./_types"
 
+type Direction = "u" | "r" | "d" | "l"
+
 export default class Snake {
   private _game: GameState
+  private _snakeMoveDelay: number = 0.5 // move every half second
+  private _moveInterval: number
 
   @observable particles: Array<Particle>
   moving: boolean = false
-  direction: "u" | "r" | "d" | "l" = "r" // go right at first
+  direction: Direction = "r" // go right at first
 
   constructor(game: GameState) {
     this._game = game
@@ -20,9 +24,41 @@ export default class Snake {
     }
 
     this.particles = [
-      { ...centerField, color: "red" }, // head
-      { x: centerField.x - 1, y: centerField.y, color: "black" } // tail
+      { ...centerField }, // head
+      { x: centerField.x - 1, y: centerField.y } // tail
     ]
+
+    reaction(
+      () => this._game.state,
+      gameState => {
+        if (gameState === "ongoing") {
+          this._startMoveInterval()
+        } else {
+          this._stopMoveInterval()
+        }
+      }
+    )
+  }
+
+  @action switchDirection(newDirection: Direction) {
+    if (this.direction === "u" && newDirection === "d") {
+      return
+    }
+
+    if (this.direction === "d" && newDirection === "u") {
+      return
+    }
+
+    if (this.direction === "l" && newDirection === "r") {
+      return
+    }
+
+    if (this.direction === "r" && newDirection === "l") {
+      return
+    }
+
+    this.direction = newDirection
+    this.move()
   }
 
   @action move() {
@@ -31,16 +67,16 @@ export default class Snake {
 
     switch (this.direction) {
       case "u":
-        head.y++
+        head.y === this._game.field.height ? (head.y = 1) : head.y++
         break
       case "r":
-        head.x++
+        head.x === this._game.field.width ? (head.x = 1) : head.x++
         break
       case "d":
-        head.y--
+        head.y === 1 ? (head.y = this._game.field.height) : head.y--
         break
       case "l":
-        head.x--
+        head.x === 1 ? (head.x = this._game.field.width) : head.x--
         break
     }
 
@@ -48,7 +84,8 @@ export default class Snake {
     this._checkSelfCollision()
 
     if (this._collidedWithApple(head)) {
-      this.particles.splice(1, 0, { ...headCopy, color: "black" })
+      this._game.field.apple = null
+      this.particles.splice(1, 0, { ...headCopy })
     } else {
       const tail = this.particles[this.particles.length - 1]
       tail.x = headCopy.x
@@ -65,11 +102,21 @@ export default class Snake {
   }
 
   private _collidedWithApple(head: Particle) {
-    if (this._game.field.apples.find(apple => apple.x === head.x && apple.y === head.y)) {
-      return true
-    }
+    const apple = this._game.field.apple
 
-    return false
+    if (apple == null) {
+      return false
+    } else {
+      return apple.x === head.x && apple.y === head.y
+    }
+  }
+
+  private _startMoveInterval() {
+    this._moveInterval = setInterval(() => this.move(), this._snakeMoveDelay * 1000)
+  }
+
+  private _stopMoveInterval() {
+    clearInterval(this._moveInterval)
   }
 }
 
