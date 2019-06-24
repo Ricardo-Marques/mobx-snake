@@ -36,10 +36,7 @@ const config = {
         test: /\.(png|jpe?g|gif|svg)$/,
         use: [
           {
-            loader: "url-loader",
-            options: {
-              limit: 8192
-            }
+            loader: "url-loader"
           }
         ]
       }

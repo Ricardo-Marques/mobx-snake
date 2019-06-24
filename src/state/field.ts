@@ -7,7 +7,7 @@ export default class Field {
   public width: number
   public height: number
   private _game: GameState
-  private _appleSpawnTime: number = 5 // seconds
+  private _appleSpawnTime: number = 1 // seconds
   private _appleSpawnTimeout: number
 
   @observable apple: Particle = null

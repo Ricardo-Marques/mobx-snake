@@ -1,15 +1,18 @@
 import * as React from "react"
 
-import TodoList from "./todoList"
-import DemoTools from "./demoTools"
-import LoginPrompt from "./loginPrompt"
+import Menu from "./menu"
+import Field from "./field"
+import Snake from "./snake"
+import Wasted from "./wasted"
 
-export default function AppUI() {
+export default function GameUI() {
   return (
     <>
-      <TodoList />
-      <DemoTools />
-      <LoginPrompt />
+      <Menu />
+      <Field>
+        <Snake />
+      </Field>
+      <Wasted />
     </>
   )
 }

@@ -10,7 +10,7 @@ export class GameState {
   snake: Snake
 
   constructor() {
-    this.field = new Field(200, 200, this)
+    this.field = new Field(50, 50, this)
     this.snake = new Snake(this)
   }
 
@@ -19,7 +19,7 @@ export class GameState {
   }
 }
 
-const State = new GameState()
+const _GameState = new GameState()
 
-export default State
-export const StateContext = React.createContext(State)
+export default _GameState
+export const GameContext = React.createContext(_GameState)

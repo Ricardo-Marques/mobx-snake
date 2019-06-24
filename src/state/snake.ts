@@ -7,7 +7,7 @@ type Direction = "u" | "r" | "d" | "l"
 
 export default class Snake {
   private _game: GameState
-  private _snakeMoveDelay: number = 0.5 // move every half second
+  private _snakeMoveDelay: number = 0.05 // move every .05 seconds
   private _moveInterval: number
 
   @observable particles: Array<Particle>
@@ -41,6 +41,10 @@ export default class Snake {
   }
 
   @action switchDirection(newDirection: Direction) {
+    if (this.direction === newDirection) {
+      return
+    }
+
     if (this.direction === "u" && newDirection === "d") {
       return
     }
